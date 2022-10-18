@@ -8,6 +8,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 
@@ -15,10 +17,9 @@ public class ShortestPathInGraph {
 
     public static void main(String[] args) throws IOException {
 
-        //Graph<String, DefaultEdge> directedWeightedGraph = loadWeightedGraphFromFile(new File("data-lab1\\mediumDAG.txt"));
-        Graph<String, DefaultEdge> directedWeightedGraph = loadWeightedGraphFromFile(new File("data-lab1\\dataset2\\160_1DAG.txt"));
+        Graph<String, DefaultEdge> directedWeightedGraph = loadWeightedGraphFromFile(new File("data-lab1\\dataset2\\5000_1DAG.txt"));
         long start = System.nanoTime();
-        List<String> jgraphtShortestPath = getJgraphtShortestPath(directedWeightedGraph,"102","25");
+        List<String> jgraphtShortestPath = getJgraphtShortestPath(directedWeightedGraph,"1","159");
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
 
@@ -31,19 +32,23 @@ public class ShortestPathInGraph {
             }
         }
         long start2 = System.nanoTime();
-        List<String> customShortestPath = getCustomShortestPath(directedWeightedGraph,"102","25");
+        List<String> customShortestPath = getCustomShortestPath(directedWeightedGraph,"1","159");
         long finish2 = System.nanoTime();
         long timeElapsed2 = finish2 - start2;
-
-        System.out.println("\nEigen uitwerking: ");
-        for (String s : customShortestPath) {
-            System.out.print(s+"\t");
+        if(customShortestPath==null){
+            System.out.println("Path not found");
+        }else {
+            System.out.println("\nEigen uitwerking: ");
+            for (String s : customShortestPath) {
+                System.out.print(s+"\t");
+            }
         }
 
 
 
-        System.out.println("\nImplementatie Jgrapht: \t"+((double) timeElapsed)/1000000+"ms");
-        System.out.println("Eigen implementatie: \t"+((double) timeElapsed2) /1000000+"ms");
+
+        System.out.println("\nImplementatie Jgrapht: \t"+((double)timeElapsed)/1000000 + "ms");
+        System.out.println("Eigen implementatie: \t"+((double)timeElapsed2)/1000000 + "ms");
         benchmarkExperiment();
 
 
@@ -92,9 +97,10 @@ public class ShortestPathInGraph {
 
         long start2 = System.nanoTime();
         List<String> customShortestPath = getCustomShortestPath(directedWeightedGraph,source+"",sink+"");
-
         long finish2 = System.nanoTime();
         long timeElapsed2 = finish2 - start2;
+
+
         if (jgraphtShortestPath != null){
             System.out.println("number of vertexes: "+directedWeightedGraph.vertexSet().size());
             System.out.println("number of edges: "+directedWeightedGraph.edgeSet().size());
@@ -152,13 +158,13 @@ public class ShortestPathInGraph {
 
 
     private static List<String> s;
-    private  static PriorityQueue<String> queue;
+    private  static Queue<String> queue;
     private static int[] distance;
     private static int[] indexes;
 
     private static void Dijkstra(Graph<String, DefaultEdge> graph, String source, String destination){
         s = new ArrayList<>();
-        queue = new PriorityQueue<>(graph.vertexSet().size());
+        queue = new LinkedList<>();
         distance = new int[graph.vertexSet().size()];
         indexes = new int[graph.vertexSet().size()];
 
@@ -175,30 +181,12 @@ public class ShortestPathInGraph {
             if(queue.isEmpty())
                 return;
             String u = queue.remove();
-            //String u = extractMin(queue);
             if(!s.contains(u)){
                 s.add(u);
                 relax(graph, u);
             }
 
         }
-    }
-
-    private static String extractMin(Queue q){
-        String u = "";
-        int dist = Integer.MAX_VALUE;
-        for (int i = 0; i < queue.size(); i++) {
-            String node = queue.remove();
-            if (distance[Integer.parseInt(node) - 1] < dist){
-                u = node;
-                dist = distance[Integer.parseInt(node) - 1];
-            }
-            queue.add(node);
-        }
-
-        queue.remove(u);
-
-        return u;
     }
 
     private static void relax(Graph<String, DefaultEdge> graph, String u){

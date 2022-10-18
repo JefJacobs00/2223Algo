@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 public class Labo1DirectedGraphs {
 
     public static void main(String[] args) throws IOException {
+        benchmarkExperiment();
 
         // gerichte graaf inlezen (je mag er van uit gaan dat dit een gerichte graaf is, ie. graph.isDirected() == true
         // bestanden: tinyDG.txt, tinyDAG.txt, mediumDG.txt, mediumDAG.txt onder de folder data
@@ -94,7 +95,31 @@ public class Labo1DirectedGraphs {
     }
     
     // Hier kan je desgewenst opgave 3 implementeren. Andere methodes van benchmarking zijn ook toegestaan. 
-    public static void benchmarkExperiment(){
+    public static void benchmarkExperiment() throws IOException {
+        String destination = "data-lab1/dataset2";
+        File folder = new File(destination);
+        String fileName = "data-lab1/dataset2/bm_cycle.csv";
 
+        for (File f : folder.listFiles()) {
+            benchmark(f);
+        }
+    }
+
+    public static void benchmark(File f) throws IOException {
+        Graph<String> graph = Util.loadDiGraphFromFile(f);
+        long start = System.nanoTime();
+        boolean hasCycle = com.google.common.graph.Graphs.hasCycle(graph);
+        long finish = System.nanoTime();
+        long timeElapsed = (finish - start);
+
+        long start2 = System.nanoTime();
+        boolean hasCycleCustom = hasCycle(graph);
+        long finish2 = System.nanoTime();
+        long timeElapsed2 = (finish2 - start2);
+
+        System.out.println(f.getName());
+        System.out.println(timeElapsed/1000000.0);
+        System.out.println(timeElapsed2/1000000.0);
+        System.out.println("-------------");
     }
 }
